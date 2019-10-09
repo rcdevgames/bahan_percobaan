@@ -23,10 +23,10 @@ dependencies:
   http_client_helper: ^0.2.1
   flutter_bloc: ^0.21.0
   equatable: ^0.2.0
-  flutter_pagewise: ^1.2.3
   cached_network_image: ^1.1.1
   indonesia: ^1.0.1
   flutter_rating_bar: ^3.0.0
+  lazy_load_scrollview: ^1.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

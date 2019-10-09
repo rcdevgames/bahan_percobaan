@@ -4,8 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:indonesia/indonesia.dart';
 import 'package:sample_listing/bloc.dart';
-import 'package:sample_listing/model.dart';
+// import 'package:sample_listing/model.dart';
 import 'package:sample_listing/size_config.dart';
+import 'package:sample_listing/state.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 
 void main() => runApp(MyApp());
 
@@ -43,74 +45,80 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     ListBloc bloc = BlocProvider.of<ListBloc>(context);
-    bloc.dispatch(1);
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Listing Karyawan HS"),
       ),
-      body: BlocBuilder<ListBloc, Model>(
+      body: BlocBuilder<ListBloc, WorkerState>(
         builder: (ctx, worker) {
+          print(worker);
           if (worker is UndefinedModel) {
+            bloc.dispatch(1);
             return Center(
               child: CircularProgressIndicator(),
             );
           }
-          return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.80),
-            itemCount: worker.data.length,
-            itemBuilder: (ctx, i) => Card(
-              child: Container(
-                padding: EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    Stack(
+          if (worker is WorkerLoaded) {
+            return LazyLoadScrollView(
+              onEndOfPage: () => bloc.dispatch(worker.page + 1),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.80),
+                itemCount: worker.data.length,
+                itemBuilder: (ctx, i) => Card(
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Column(
                       children: <Widget>[
-                        Container(
-                          color: Theme.of(context).primaryColor,
-                          height: SizeConfig.safeBlockVertical * 20,
-                          width: double.infinity,
-                          child: avatarName(worker.data[i].workerName),
+                        Stack(
+                          children: <Widget>[
+                            Container(
+                              color: Theme.of(context).primaryColor,
+                              height: SizeConfig.safeBlockVertical * 20,
+                              width: double.infinity,
+                              child: avatarName(worker.data[i].workerName),
+                            ),
+                            SizedBox(
+                              height: SizeConfig.safeBlockVertical * 20,
+                              width: double.infinity,
+                              // child: Image.network(worker.data[i].workerProfile, fit: BoxFit.cover, alignment: AlignmentDirectional.topCenter)
+                              child: CachedNetworkImage(
+                                imageUrl: worker.data[i].workerProfile,
+                                placeholder: (ctx, id) => avatarName(worker.data[i].workerName),
+                                errorWidget: (ctx, id, o) => avatarName(worker.data[i].workerName),
+                                fit: BoxFit.cover,
+                                alignment: AlignmentDirectional.topCenter,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          height: SizeConfig.safeBlockVertical * 20,
-                          width: double.infinity,
-                          // child: Image.network(worker.data[i].workerProfile, fit: BoxFit.cover, alignment: AlignmentDirectional.topCenter)
-                          child: CachedNetworkImage(
-                            imageUrl: worker.data[i].workerProfile,
-                            placeholder: (ctx, id) => avatarName(worker.data[i].workerName),
-                            errorWidget: (ctx, id, o) => avatarName(worker.data[i].workerName),
-                            fit: BoxFit.cover,
-                            alignment: AlignmentDirectional.topCenter,
-                          ),
+                        SizedBox(height: 5),
+                        Text("${worker.data[i].workerName} (${worker.data[i].workerAge})", textAlign: TextAlign.center),
+                        Text(worker.data[i].districtName, style: TextStyle(fontSize: 10)),
+                        Expanded(
+                          child: SizedBox(),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Text("${worker.data[i].workerName} (${worker.data[i].workerAge})", textAlign: TextAlign.center),
-                    Text(worker.data[i].districtName, style: TextStyle(fontSize: 10)),
-                    Expanded(
-                      child: SizedBox(),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(rupiah(worker.data[i].workerSalary), style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
-                        RatingBarIndicator(
-                          rating: double.parse(worker.data[i].workerRating),
-                          itemSize: 13,
-                          itemBuilder: (context, index) => Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(rupiah(worker.data[i].workerSalary), style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
+                            RatingBarIndicator(
+                              rating: double.parse(worker.data[i].workerRating),
+                              itemSize: 13,
+                              itemBuilder: (context, index) => Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                              ),
+                            )
+                          ],
                         )
                       ],
-                    )
-                  ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          }
         },
       ),
     );
