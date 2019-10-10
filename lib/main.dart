@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:indonesia/indonesia.dart';
 import 'package:sample_listing/bloc.dart';
+import 'package:sample_listing/detail.dart';
 // import 'package:sample_listing/model.dart';
 import 'package:sample_listing/size_config.dart';
 import 'package:sample_listing/state.dart';
@@ -15,14 +16,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: BlocProvider(
-        builder: (context) => ListBloc(),
-        child: Home(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ListBloc>(builder: (context) => ListBloc()),
+        BlocProvider<DetailBloc>(builder: (context) => DetailBloc()),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: Home()
       ),
     );
   }
@@ -65,54 +69,57 @@ class Home extends StatelessWidget {
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.80),
                 itemCount: worker.data.length,
-                itemBuilder: (ctx, i) => Card(
-                  child: Container(
-                    padding: EdgeInsets.all(10.0),
-                    child: Column(
-                      children: <Widget>[
-                        Stack(
-                          children: <Widget>[
-                            Container(
-                              color: Theme.of(context).primaryColor,
-                              height: SizeConfig.safeBlockVertical * 20,
-                              width: double.infinity,
-                              child: avatarName(worker.data[i].workerName),
-                            ),
-                            SizedBox(
-                              height: SizeConfig.safeBlockVertical * 20,
-                              width: double.infinity,
-                              // child: Image.network(worker.data[i].workerProfile, fit: BoxFit.cover, alignment: AlignmentDirectional.topCenter)
-                              child: CachedNetworkImage(
-                                imageUrl: worker.data[i].workerProfile,
-                                placeholder: (ctx, id) => avatarName(worker.data[i].workerName),
-                                errorWidget: (ctx, id, o) => avatarName(worker.data[i].workerName),
-                                fit: BoxFit.cover,
-                                alignment: AlignmentDirectional.topCenter,
+                itemBuilder: (ctx, i) => GestureDetector(
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => DetailWorker(worker.data[i].idWorker))),
+                  child: Card(
+                    child: Container(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        children: <Widget>[
+                          Stack(
+                            children: <Widget>[
+                              Container(
+                                color: Theme.of(context).primaryColor,
+                                height: SizeConfig.safeBlockVertical * 20,
+                                width: double.infinity,
+                                child: avatarName(worker.data[i].workerName),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 5),
-                        Text("${worker.data[i].workerName} (${worker.data[i].workerAge})", textAlign: TextAlign.center),
-                        Text(worker.data[i].districtName, style: TextStyle(fontSize: 10)),
-                        Expanded(
-                          child: SizedBox(),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(rupiah(worker.data[i].workerSalary), style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
-                            RatingBarIndicator(
-                              rating: double.parse(worker.data[i].workerRating),
-                              itemSize: 13,
-                              itemBuilder: (context, index) => Icon(
-                                Icons.star,
-                                color: Colors.amber,
+                              SizedBox(
+                                height: SizeConfig.safeBlockVertical * 20,
+                                width: double.infinity,
+                                // child: Image.network(worker.data[i].workerProfile, fit: BoxFit.cover, alignment: AlignmentDirectional.topCenter)
+                                child: CachedNetworkImage(
+                                  imageUrl: worker.data[i].workerProfile,
+                                  placeholder: (ctx, id) => avatarName(worker.data[i].workerName),
+                                  errorWidget: (ctx, id, o) => avatarName(worker.data[i].workerName),
+                                  fit: BoxFit.cover,
+                                  alignment: AlignmentDirectional.topCenter,
+                                ),
                               ),
-                            )
-                          ],
-                        )
-                      ],
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Text("${worker.data[i].workerName} (${worker.data[i].workerAge})", textAlign: TextAlign.center),
+                          Text(worker.data[i].districtName, style: TextStyle(fontSize: 10)),
+                          Expanded(
+                            child: SizedBox(),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(rupiah(worker.data[i].workerSalary), style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
+                              RatingBarIndicator(
+                                rating: double.parse(worker.data[i].workerRating),
+                                itemSize: 13,
+                                itemBuilder: (context, index) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
