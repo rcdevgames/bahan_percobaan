@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:indonesia/indonesia.dart';
 import 'package:sample_listing/bloc.dart';
 import 'package:sample_listing/detail.dart';
@@ -9,8 +10,12 @@ import 'package:sample_listing/detail.dart';
 import 'package:sample_listing/size_config.dart';
 import 'package:sample_listing/state.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+import 'package:bloc/bloc.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  BlocSupervisor.delegate = await HydratedBlocDelegate.build();
+  return runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.

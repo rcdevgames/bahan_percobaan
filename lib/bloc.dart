@@ -2,13 +2,14 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:sample_listing/model.dart';
 import 'package:sample_listing/state.dart';
 import 'package:http/http.dart' as http;
 import 'package:sample_listing/state_2.dart';
 import 'package:sample_listing/worker.dart';
 
-class ListBloc extends Bloc<int, WorkerState> {
+class ListBloc extends HydratedBloc<int, WorkerState> {
   var loading = false;
 
   @override
@@ -49,6 +50,18 @@ class ListBloc extends Bloc<int, WorkerState> {
     var userData  = (jsonObject as Map<String, dynamic>)['message'];
 
     return compute(modelFromJson, jsonEncode(userData));
+  }
+
+  @override
+  WorkerState fromJson(Map<String, dynamic> json) {
+    // TODO: implement fromJson
+    return null;
+  }
+
+  @override
+  Map<String, String> toJson(WorkerState state) {
+    // TODO: implement toJson
+    return null;
   }
 }
 
